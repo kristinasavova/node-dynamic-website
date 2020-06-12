@@ -13,5 +13,3 @@ http.createServer ( (req, res) => {
     router.user (req, res);
 }).listen (3000);
 console.log ('Server running at http://localhost:3000/');
-
-/* Function that handles the reading of files and merge in value */

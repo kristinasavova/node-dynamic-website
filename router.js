@@ -1,13 +1,15 @@
 const Profile = require ('./profile.js');
+const renderer = require ('./renderer');
 
 /* Handle HTTP routes GET / and POST / i.e. Home */
 
 const home = (req, res) => {
     if (req.url === '/') {
         res.writeHead (200, { 'Content-Type': 'text/plain' });
-        res.write ('Header\n');
-        res.write ('Search\n');
-        res.end ('Footer\n');
+        renderer.view ('header', {}, res);
+        renderer.view ('search', {}, res);
+        renderer.view ('footer', {}, res);
+        res.end ();
     }
 };
 
@@ -17,7 +19,7 @@ const user = (req, res) => {
     const username = req.url.replace ('/', '');
     if (username.length > 0) {
         res.writeHead (200, { 'Content-Type': 'text/plain' });
-        res.write ('Header\n');
+        renderer.view ('header', {}, res);
         const studentProfile = new Profile (username); // get JSON from Treehouse 
         studentProfile.on ('end', (profileJSON) => {
             // Store the values which we need
@@ -27,13 +29,15 @@ const user = (req, res) => {
                 badges: profileJSON.badges.length,
                 JSPoints: profileJSON.points.JavaScript 
             }
-            res.write (values.username + ' has ' + values.badges + ' badges\n');
-            res.end ('Footer\n');
+            renderer.view ('profile', values, res);
+            renderer.view ('footer', {}, res);
+            res.end ();
         });
         studentProfile.on ('error', (error) => {
-            res.write (error.message + '\n');
-            res.end ('Footer\n');
-
+            renderer.view ('error', { errorMessage: error.message }, res);
+            renderer.view ('search', {}, res);
+            renderer.view ('footer', {}, res);
+            res.end ();
         });
     }
 };

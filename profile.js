@@ -15,7 +15,7 @@ function Profile (username) {
 
     // Connect to the API URL (https://teamtreehouse.com/username.json)
     const request = https.get ('https://teamtreehouse.com/' + username + '.json', function (response) {
-        const body = '';
+        let body = '';
 
         if (response.statusCode !== 200) {
             request.abort ();

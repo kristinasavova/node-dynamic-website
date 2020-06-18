@@ -1,15 +1,26 @@
+const querystring = require ('querystring');
 const Profile = require ('./profile.js');
 const renderer = require ('./renderer');
+
+const commonHeaders = { 'Content-Type': 'text/html' }; 
 
 /* Handle HTTP routes GET / and POST / i.e. Home */
 
 const home = (req, res) => {
     if (req.url === '/') {
-        res.writeHead (200, { 'Content-Type': 'text/plain' });
-        renderer.view ('header', {}, res);
-        renderer.view ('search', {}, res);
-        renderer.view ('footer', {}, res);
-        res.end ();
+        if (req.method.toLowerCase () === 'get') {
+            res.writeHead (200, commonHeaders);
+            renderer.view ('header', {}, res);
+            renderer.view ('search', {}, res);
+            renderer.view ('footer', {}, res);
+            res.end ();
+        } else {
+            req.on ('data', (postBody) => {
+                const query = querystring.parse (postBody.toString ());
+                res.writeHead (303, { 'Location': '/' + query.username });
+                res.end ();
+            });
+        }
     }
 };
 
@@ -18,7 +29,7 @@ const home = (req, res) => {
 const user = (req, res) => {
     const username = req.url.replace ('/', '');
     if (username.length > 0) {
-        res.writeHead (200, { 'Content-Type': 'text/plain' });
+        res.writeHead (200, commonHeaders);
         renderer.view ('header', {}, res);
         const studentProfile = new Profile (username); // get JSON from Treehouse 
         studentProfile.on ('end', (profileJSON) => {
